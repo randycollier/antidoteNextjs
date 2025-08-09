@@ -77,14 +77,20 @@ If you prefer manual setup:
    ./deploy-digitalocean.sh
    ```
 
-3. **Copy SSL certificates** to the droplet:
+3. **SSL Certificate Setup** (choose one option):
+   
+   **Option A: Use existing certificates on droplet** (recommended)
+   - The script will automatically copy certificates from `/root/.ssh/` on your droplet
+   
+   **Option B: Copy certificates from your local machine**:
+   ```bash
+   ./copy-ssl.sh
+   ```
+   
+   **Option C: Manual copy**:
    ```bash
    scp .ssh/cert.pem root@YOUR_DROPLET_IP:/opt/antidote/antidoteNextjs/.ssh/
    scp .ssh/key.pem root@YOUR_DROPLET_IP:/opt/antidote/antidoteNextjs/.ssh/
-   ```
-
-4. **Restart nginx** to load SSL certificates:
-   ```bash
    ssh root@YOUR_DROPLET_IP 'cd /opt/antidote/antidoteNextjs && docker-compose -f docker-compose.prod.yml restart nginx'
    ```
 
@@ -139,6 +145,7 @@ antidoteNextjs/
 ├── setup-local.sh           # Local setup script
 ├── deploy-prod.sh           # Production deployment script
 ├── deploy-digitalocean.sh   # DigitalOcean droplet deployment
+├── copy-ssl.sh              # SSL certificate copy helper
 ├── droplet.config            # Droplet configuration template
 └── .ssh/                    # SSL certificates (not in git)
 ```

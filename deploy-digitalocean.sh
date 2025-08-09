@@ -43,7 +43,7 @@ echo ""
 echo "📡 Connecting to droplet at $DROPLET_IP..."
 
 # Deploy to DigitalOcean droplet
-ssh -o StrictHostKeyChecking=no $SSH_USER@$DROPLET_IP << 'EOF'
+ssh -o StrictHostKeyChecking=no $SSH_USER@$DROPLET_IP << EOF
     echo "🔧 Updating system packages..."
     apt update && apt upgrade -y
     
@@ -51,11 +51,11 @@ ssh -o StrictHostKeyChecking=no $SSH_USER@$DROPLET_IP << 'EOF'
     if ! command -v docker &> /dev/null; then
         curl -fsSL https://get.docker.com -o get-docker.sh
         sh get-docker.sh
-        usermod -aG docker $USER
+        usermod -aG docker \$USER
     fi
     
     if ! command -v docker-compose &> /dev/null; then
-        curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-\$(uname -s)-\$(uname -m)" -o /usr/local/bin/docker-compose
         chmod +x /usr/local/bin/docker-compose
     fi
     
@@ -76,10 +76,10 @@ ssh -o StrictHostKeyChecking=no $SSH_USER@$DROPLET_IP << 'EOF'
     git submodule update --init --recursive
     
     echo "🔒 Setting up SSL certificates..."
+    echo "📋 Using existing SSH certificates from /root/.ssh"
     mkdir -p .ssh
-    echo "⚠️  IMPORTANT: You need to manually copy your SSL certificates to the droplet:"
-    echo "   scp .ssh/cert.pem $SSH_USER@$DROPLET_IP:/opt/antidote/antidoteNextjs/.ssh/"
-    echo "   scp .ssh/key.pem $SSH_USER@$DROPLET_IP:/opt/antidote/antidoteNextjs/.ssh/"
+    cp /root/.ssh/cert.pem .ssh/ 2>/dev/null || echo "⚠️  cert.pem not found in /root/.ssh"
+    cp /root/.ssh/key.pem .ssh/ 2>/dev/null || echo "⚠️  key.pem not found in /root/.ssh"
     
     echo "🚀 Building and starting production services..."
     docker-compose -f docker-compose.prod.yml down || true
@@ -101,7 +101,7 @@ echo ""
 echo "🎉 Deployment script completed!"
 echo ""
 echo "📋 Next steps:"
-echo "1. Copy your SSL certificates to the droplet:"
+echo "1. If SSL certificates weren't found, copy them manually:"
 echo "   scp .ssh/cert.pem $SSH_USER@$DROPLET_IP:/opt/antidote/antidoteNextjs/.ssh/"
 echo "   scp .ssh/key.pem $SSH_USER@$DROPLET_IP:/opt/antidote/antidoteNextjs/.ssh/"
 echo ""
