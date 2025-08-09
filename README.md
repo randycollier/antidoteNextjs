@@ -65,11 +65,11 @@ If you prefer manual setup:
 - SSL certificates in `.ssh/` directory
 
 ### Quick Deployment
-1. **Update the deployment script** with your droplet IP:
+1. **Configure your droplet details**:
    ```bash
-   # Edit deploy-digitalocean.sh and change:
-   DROPLET_IP="YOUR_DROPLET_IP_HERE"
-   # to your actual droplet IP address
+   # Copy the config template and edit it:
+   cp droplet.config droplet.config.local
+   # Edit droplet.config.local with your IP and SSH user
    ```
 
 2. **Run the deployment script**:
@@ -139,6 +139,7 @@ antidoteNextjs/
 ├── setup-local.sh           # Local setup script
 ├── deploy-prod.sh           # Production deployment script
 ├── deploy-digitalocean.sh   # DigitalOcean droplet deployment
+├── droplet.config            # Droplet configuration template
 └── .ssh/                    # SSL certificates (not in git)
 ```
 

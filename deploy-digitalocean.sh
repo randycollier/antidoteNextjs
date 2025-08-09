@@ -5,20 +5,40 @@
 
 set -e  # Exit on any error
 
-# Configuration - UPDATE THESE VALUES
-DROPLET_IP="YOUR_DROPLET_IP_HERE"
-SSH_USER="root"  # or your SSH user
-REPO_URL="https://github.com/randycollier/antidoteNextjs.git"
-SUBMODULE_URL="https://github.com/randycollier/antidote_design.git"
+# Configuration file
+CONFIG_FILE="droplet.config"
 
-echo "🚀 Deploying to DigitalOcean droplet..."
-
-# Check if droplet IP is configured
-if [ "$DROPLET_IP" = "YOUR_DROPLET_IP_HERE" ]; then
-    echo "❌ Error: Please update DROPLET_IP in this script first!"
-    echo "   Edit deploy-digitalocean.sh and set DROPLET_IP to your droplet's IP address"
+# Check if config file exists
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "❌ Error: Configuration file '$CONFIG_FILE' not found!"
+    echo "   Please copy 'droplet.config' and fill in your droplet details:"
+    echo "   cp droplet.config droplet.config.local"
+    echo "   # Then edit droplet.config.local with your IP and SSH user"
     exit 1
 fi
+
+# Load configuration
+echo "📋 Loading configuration from $CONFIG_FILE..."
+source "$CONFIG_FILE"
+
+# Validate required variables
+if [ -z "$DROPLET_IP" ] || [ "$DROPLET_IP" = "YOUR_DROPLET_IP_HERE" ]; then
+    echo "❌ Error: DROPLET_IP not configured in $CONFIG_FILE!"
+    echo "   Please set DROPLET_IP to your droplet's IP address"
+    exit 1
+fi
+
+if [ -z "$SSH_USER" ] || [ "$SSH_USER" = "YOUR_SSH_USER_HERE" ]; then
+    echo "❌ Error: SSH_USER not configured in $CONFIG_FILE!"
+    echo "   Please set SSH_USER (usually 'root' for DigitalOcean)"
+    exit 1
+fi
+
+echo "🚀 Deploying to DigitalOcean droplet..."
+echo "📍 Droplet IP: $DROPLET_IP"
+echo "👤 SSH User: $SSH_USER"
+echo "📦 Repository: $REPO_URL"
+echo ""
 
 echo "📡 Connecting to droplet at $DROPLET_IP..."
 
