@@ -1,0 +1,32 @@
+services:
+  nextjs:
+    build:
+      context: ./antidote_design
+      dockerfile: Dockerfile
+    container_name: nextjs-prod
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - antidote-network
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - nextjs
+    restart: unless-stopped
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf
+      - ./.ssh:/etc/nginx/ssl:ro
+    networks:
+      - antidote-network
+
+networks:
+  antidote-network:
+    driver: bridge
