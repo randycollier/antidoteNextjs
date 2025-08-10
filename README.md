@@ -57,6 +57,42 @@ If you prefer manual setup:
 - Logs: `docker-compose -f docker-compose.prod.yml logs -f`
 - Rebuild: `docker-compose -f docker-compose.prod.yml up -d --build`
 
+## 🐳 GitHub Container Registry (GHCR)
+
+### **What is GHCR?**
+GitHub Container Registry is a Docker container registry that allows you to store, manage, and deploy Docker images directly from your GitHub repository.
+
+### **Benefits:**
+- ✅ **Faster deployments** - No need to build on the droplet
+- ✅ **Version control** - Images are tagged with git commits
+- ✅ **Security** - Images are scanned for vulnerabilities
+- ✅ **Integration** - Works seamlessly with GitHub Actions
+- ✅ **Free tier** - 500MB storage and 1GB bandwidth per month
+
+### **Setup Steps:**
+
+1. **Create GitHub Personal Access Token:**
+   - Go to GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+   - Generate new token with permissions: `write:packages`, `read:packages`, `delete:packages`
+
+2. **Set your token locally:**
+   ```bash
+   export GITHUB_TOKEN=your_token_here
+   # Or add to your shell profile (~/.bashrc, ~/.zshrc)
+   ```
+
+3. **Build and push images:**
+   ```bash
+   ./build-and-push.sh
+   ```
+
+4. **Images will be available at:**
+   - Next.js: `ghcr.io/randycollier/antidote-design:latest`
+   - Nginx: `ghcr.io/randycollier/antidote-nginx:latest`
+
+### **Automatic Builds:**
+The GitHub Actions workflow (`.github/workflows/build-and-push.yml`) automatically builds and pushes images on every push to main.
+
 ## 🌊 DigitalOcean Droplet Deployment
 
 ### Prerequisites
@@ -72,7 +108,13 @@ If you prefer manual setup:
    # Edit droplet.config.local with your IP and SSH user
    ```
 
-2. **Run the deployment script**:
+2. **Build and push images to GHCR** (if not using GitHub Actions):
+   ```bash
+   export GITHUB_TOKEN=your_token_here
+   ./build-and-push.sh
+   ```
+
+3. **Run the deployment script**:
    ```bash
    ./deploy-digitalocean.sh
    ```
@@ -146,7 +188,11 @@ antidoteNextjs/
 ├── deploy-prod.sh           # Production deployment script
 ├── deploy-digitalocean.sh   # DigitalOcean droplet deployment
 ├── copy-ssl.sh              # SSL certificate copy helper
+├── build-and-push.sh        # Build and push to GHCR
+├── docker-compose.ghcr.yml  # Production with GHCR images
 ├── droplet.config            # Droplet configuration template
+├── .github/workflows/        # GitHub Actions workflows
+│   └── build-and-push.yml   # Auto-build and push to GHCR
 └── .ssh/                    # SSL certificates (not in git)
 ```
 

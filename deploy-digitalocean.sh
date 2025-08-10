@@ -81,9 +81,16 @@ ssh -o StrictHostKeyChecking=no $SSH_USER@$DROPLET_IP << EOF
     cp /root/.ssh/cert.pem .ssh/ 2>/dev/null || echo "⚠️  cert.pem not found in /root/.ssh"
     cp /root/.ssh/key.pem .ssh/ 2>/dev/null || echo "⚠️  key.pem not found in /root/.ssh"
     
-    echo "🚀 Building and starting production services..."
+    echo "🚀 Starting production services with GHCR images..."
+    echo "📋 Note: This will pull pre-built images from GitHub Container Registry"
+    echo "📋 Make sure you've run ./build-and-push.sh locally first!"
+    
+    # Stop any existing services
     docker-compose -f docker-compose.prod.yml down || true
-    docker-compose -f docker-compose.prod.yml up -d --build
+    docker-compose -f docker-compose.ghcr.yml down || true
+    
+    # Start services using GHCR images
+    docker-compose -f docker-compose.ghcr.yml up -d
     
     echo "✅ Deployment complete!"
     echo "🌐 Your app should be available at:"
@@ -91,10 +98,10 @@ ssh -o StrictHostKeyChecking=no $SSH_USER@$DROPLET_IP << EOF
     echo "   - HTTPS: https://$DROPLET_IP (if SSL certificates are configured)"
     
     echo "📊 Container status:"
-    docker-compose -f docker-compose.prod.yml ps
+    docker-compose -f docker-compose.ghcr.yml ps
     
-    echo "📝 To view logs: docker-compose -f docker-compose.prod.yml logs -f"
-    echo "🛑 To stop: docker-compose -f docker-compose.prod.yml down"
+    echo "📝 To view logs: docker-compose -f docker-compose.ghcr.yml logs -f"
+    echo "🛑 To stop: docker-compose -f docker-compose.ghcr.yml down"
 EOF
 
 echo ""
@@ -106,6 +113,8 @@ echo "   scp .ssh/cert.pem $SSH_USER@$DROPLET_IP:/opt/antidote/antidoteNextjs/.s
 echo "   scp .ssh/key.pem $SSH_USER@$DROPLET_IP:/opt/antidote/antidoteNextjs/.ssh/"
 echo ""
 echo "2. Restart the services after copying certificates:"
-echo "   ssh $SSH_USER@$DROPLET_IP 'cd /opt/antidote/antidoteNextjs && docker-compose -f docker-compose.prod.yml restart nginx'"
+echo "   ssh $SSH_USER@$DROPLET_IP 'cd /opt/antidote/antidoteNextjs && docker-compose -f docker-compose.ghcr.yml restart nginx'"
 echo ""
 echo "3. Access your app at: https://$DROPLET_IP"
+echo ""
+echo "💡 To update the app, run ./build-and-push.sh locally, then redeploy!"
