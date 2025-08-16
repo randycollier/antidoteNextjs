@@ -37,7 +37,7 @@ cd $DEPLOY_DIR
 
 # Create docker-compose file for production
 echo -e "${YELLOW}📝 Creating docker-compose.yml...${NC}"
-cat > docker-compose.yml << EOF
+cat > docker-compose.yml << 'EOF'
 version: '3.8'
 
 services:
